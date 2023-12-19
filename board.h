@@ -70,13 +70,15 @@ public:
 	};
 	unsigned char WhiteCastling = 0; // K = 1, Q = 2
 	unsigned char BlackCastling = 0; // K = 1, Q = 2
-	Color sideToMove = White;
+	Color turn = White;
 	Square enPassantSq = a8; // if it's a8, then it's none
 	int fiftyMoveRule = 0; // half-moves since last pawn move or capture
+	int fullMoveCounter = 1;
 
-	void loadFromFEN(std::string fen);
+	void loadFromFEN(const std::string fen);
 	void publishFEN();
 	Piece pieceAt(Square sq);
+	void resetBoard();
 
 	
 	
@@ -100,7 +102,11 @@ enum SPECIAL {
 	WHITE_KINGSIDE_CASTLE,
 	WHITE_QUEENSIDE_CASTLE,
 	BLACK_KINGSIDE_CASTLE,
-	BLACK_QUEENSIDE_CASTLE
+	BLACK_QUEENSIDE_CASTLE,
+	WHITE_ENPASSANT,
+	BLACK_ENPASSANT,
+	WHITE_PAWNTWOSQUARES,
+	BLACK_PAWNTWOSQUARES,
 };
 
 class Move {
@@ -110,18 +116,27 @@ public:
 	SPECIAL special = NOT_SPECIAL;
 	
 	void readFromUCI(const std::string str);
+	Move() = default;
+	Move(Square f, Square t, SPECIAL spec); // simple constructor for move
+	Move(int f, int t); // rudamentary constructor for move (why not)
+	Move(int f, int t, SPECIAL spec); // rudamentary constructor with special!
+
+	friend std::ostream& operator<<(std::ostream& out, const Move& mv);
 };
 
 class Board : public BaseBoard {
 
 public:
-	Color turn{};
 	std::vector<Move> move_stack{};
+	std::vector<Move> legal_moves{};
 	
 
+	std::vector<Move> pseudo_legal_moves{};
+	void gen_pseudo_legal_moves();
+	void push(Move mv);
 
 private:
-	std::vector<Move> gen_pseudo_legal_moves();
+	
 
 };
 
