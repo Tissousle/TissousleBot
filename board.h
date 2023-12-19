@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <ctype.h>
+#include <vector>
 
 
 enum Piece {
@@ -15,7 +16,7 @@ enum Color {
 };
 
 /// <summary>
-/// Easy way to print what square via index
+/// Easy way to find by name what square via index
 /// Starts on h1 goes down to a8
 /// </summary>
 const std::string SquareNames[64]{
@@ -73,11 +74,11 @@ public:
 	Square enPassantSq = a8; // if it's a8, then it's none
 	int fiftyMoveRule = 0; // half-moves since last pawn move or capture
 
-	
-	int loadFromFEN(std::string fen);
-	int publishFEN();
-	//void board_display();
+	void loadFromFEN(std::string fen);
+	void publishFEN();
 	Piece pieceAt(Square sq);
+
+	
 	
 
 protected:
@@ -104,13 +105,23 @@ enum SPECIAL {
 
 class Move {
 public:
-	Square from;
-	Square to;
-	SPECIAL special;
-	bool isCapture();
+	Square from = a8;
+	Square to = a8;
+	SPECIAL special = NOT_SPECIAL;
+	
+	void readFromUCI(const std::string str);
 };
 
 class Board : public BaseBoard {
+
+public:
+	Color turn{};
+	std::vector<Move> move_stack{};
+	
+
+
+private:
+	std::vector<Move> gen_pseudo_legal_moves();
 
 };
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "board.h"
 
+// probably where the main loop will be.
 
 int main()
 {
@@ -9,5 +10,12 @@ int main()
     board.loadFromFEN("3q3r/1p2kpp1/p2R1N1p/8/1Q6/5P1P/PP3P2/4K2R b Qk - 0 21");
     board.publishFEN();
     Square sq = f2;
-    std::cout << "piece at " << SquareNames[sq] << " is " << board.pieceAt(sq);
+    std::cout << "piece at " << SquareNames[sq] << " is " << board.pieceAt(sq)<<"\n\n";
+
+    Move mv;
+
+    mv.readFromUCI("a1h6");
+
+    std::cout << "from: " << SquareNames[mv.from] << "\nto: " << SquareNames[mv.to] <<"\nspecial: "<<mv.special;
+
 }

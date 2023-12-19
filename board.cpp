@@ -1,10 +1,11 @@
 #include "board.h"
 
-using namespace std;
 
 
-int BaseBoard::loadFromFEN(const std::string fen)
+void BaseBoard::loadFromFEN(const std::string fen)
 {
+	using namespace std;
+
 	clearBoard();
 
 	stringstream s(fen);
@@ -169,11 +170,13 @@ int BaseBoard::loadFromFEN(const std::string fen)
 		}
 		x++;
 	}
-	return 0;
+	return;
 }
 
-int BaseBoard::publishFEN()
+void BaseBoard::publishFEN()
 {
+	using namespace std;
+
 	ostringstream oss;
 
 	for (auto i = 7; i >= 0; i--) {
@@ -254,10 +257,10 @@ int BaseBoard::publishFEN()
 
 	std::cout << oss.str();
 	
-	return 0;
+	return;
 }
 
-Piece BaseBoard::pieceAt(Square sq)
+Piece BaseBoard::pieceAt(const Square sq)
 {
 	return board[static_cast<int>(sq)];
 }
@@ -275,19 +278,104 @@ void BaseBoard::clearBoard()
 	fiftyMoveRule = 0;
 }
 
-void BaseBoard::fillSquare(Color c, Piece p, Square sq)
+void BaseBoard::fillSquare(const Color c, const Piece p, const Square sq)
 {
 	color[sq] = c;
 	board[sq] = p;
 }
 
-void BaseBoard::clearSquare(Square sq)
+void BaseBoard::clearSquare(const Square sq)
 {
 	color[sq] = White;
 	board[sq] = None;
 }
 
-bool Move::isCapture()
+void Move::readFromUCI(const std::string str)
 {
-	return false;
+	if (str.length() == 0) { return; }
+
+
+	const std::string fromStr = str.substr(0, 2);
+	const std::string toStr = str.substr(2, 2);
+
+	//i think this finds the right square from the squares and sets it right
+	from = static_cast<Square>(std::distance(SquareNames,std::find(std::begin(SquareNames), std::end(SquareNames), fromStr)));
+
+	to = static_cast<Square>(std::distance(SquareNames, std::find(std::begin(SquareNames), std::end(SquareNames), toStr)));
+
+	if (str.length() == 5) {
+		switch (str[4]) {
+
+		case 'q':
+			special = PROMOTION_QUEEN;
+			break;
+		case 'r':
+			special = PROMOTION_ROOK;
+			break;
+		case 'n':
+			special = PROMOTION_KNIGHT;
+			break;
+		case 'b':
+			special = PROMOTION_BISHOP;
+			break;
+		}
+	}
+}
+
+std::vector<Move> Board::gen_pseudo_legal_moves()
+{
+	static const int mailbox[120] = {
+	 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	 -1,  0,  1,  2,  3,  4,  5,  6,  7, -1,
+	 -1,  8,  9, 10, 11, 12, 13, 14, 15, -1,
+	 -1, 16, 17, 18, 19, 20, 21, 22, 23, -1,
+	 -1, 24, 25, 26, 27, 28, 29, 30, 31, -1,
+	 -1, 32, 33, 34, 35, 36, 37, 38, 39, -1,
+	 -1, 40, 41, 42, 43, 44, 45, 46, 47, -1,
+	 -1, 48, 49, 50, 51, 52, 53, 54, 55, -1,
+	 -1, 56, 57, 58, 59, 60, 61, 62, 63, -1,
+	 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+	};
+
+	static const int mailbox64[64] = {
+		21, 22, 23, 24, 25, 26, 27, 28,
+		31, 32, 33, 34, 35, 36, 37, 38,
+		41, 42, 43, 44, 45, 46, 47, 48,
+		51, 52, 53, 54, 55, 56, 57, 58,
+		61, 62, 63, 64, 65, 66, 67, 68,
+		71, 72, 73, 74, 75, 76, 77, 78,
+		81, 82, 83, 84, 85, 86, 87, 88,
+		91, 92, 93, 94, 95, 96, 97, 98
+	};
+	
+	static const int offsets[6] = { 0, 8, 4, 4, 8, 8 }; /* knight or ray directions */
+
+	static const int offset[6][8] = {
+		{   0,   0,  0,  0, 0,  0,  0,  0 },
+		{ -21, -19,-12, -8, 8, 12, 19, 21 }, /* KNIGHT */
+		{ -11,  -9,  9, 11, 0,  0,  0,  0 }, /* BISHOP */
+		{ -10,  -1,  1, 10, 0,  0,  0,  0 }, /* ROOK */
+		{ -11, -10, -9, -1, 1,  9, 10, 11 }, /* QUEEN */
+		{ -11, -10, -9, -1, 1,  9, 10, 11 }  /* KING */
+	};
+	
+	for (int i = 0; i < 64; i++) {
+
+		if (color[i] == turn and board[i]) {
+
+			Piece piece = board[i];
+
+			if (not piece == Pawn) {
+
+			}
+		}
+	}
+	
+	
+	
+	
+	
+	return std::vector<Move>();
 }
